@@ -1,0 +1,58 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 27
+    buildToolsVersion '27.0.2'
+    defaultConfig {
+        applicationId "com.aware.plugin.template" //EDIT ME
+        minSdkVersion 24
+        targetSdkVersion target_sdk
+        versionName version_readable
+        multiDexEnabled true;
+    }
+    signingConfigs {
+        release
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+    productFlavors {
+    }
+}
+
+if (System.getenv("storeFile") != null && System.getenv("storePassword") != null && System.getenv("keyAlias") != null && System.getenv("keyPassword") != null) {
+    android.signingConfigs.release.storeFile = file(System.getenv("storeFile"))
+    android.signingConfigs.release.storePassword = System.getenv("storePassword")
+    android.signingConfigs.release.keyAlias = System.getenv("keyAlias")
+    android.signingConfigs.release.keyPassword = System.getenv("keyPassword")
+} else {
+    println("No keystore defined. Unsigned!")
+    android.buildTypes.release.signingConfig = null
+}
+
+repositories {
+    maven { url 'https://jitpack.io' } //this allows library generation directly from GitHub source-code
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+dependencies {
+    //compile 'com.google.firebase:firebase-core:9.2.0'
+    //compile "com.android.support:$support_libs"
+    implementation "com.android.support:appcompat-v7:$support_libs"
+    implementation "com.github.denzilferreira:aware-client:$aware_libs"
+    implementation "com.android.support:appcompat-v7:$support_libs"
+    implementation "com.android.support:gridlayout-v7:$support_libs"
+    //implementation files('libs/commons-math3-3.6.1.jar')
+    implementation files('libs/JTransforms-3.1-with-dependencies.jar')
+}
+//apply plugin: 'com.google.gms.google-services'

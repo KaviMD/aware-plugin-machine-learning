@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">AWARE: Plugin Template</string>
+    <string name="plugin_template">Plugin: Template</string>
+    <string name="detection">No Prediction</string>
+</resources>
