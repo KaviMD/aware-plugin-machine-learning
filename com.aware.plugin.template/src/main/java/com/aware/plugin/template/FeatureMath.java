@@ -59,18 +59,18 @@ public class FeatureMath {
 
         // Calculate the numerator
         for(int i = 0;i < x.length;i++) {
-            numerator =+ (x[i]-xMean)*(y[i]-yMean);
+            numerator = numerator + (x[i]-xMean)*(y[i]-yMean);
         }
 
         // Calculate the denominator
         double xSum = 0;
         double ySum = 0;
         for(int i = 0;i < x.length;i++){
-            xSum =+ x[i]-xMean;
+            xSum = xSum + x[i]-xMean;
         }
         xSum = Math.pow(xSum,2);
         for(int i = 0;i < x.length;i++) {
-            ySum = +y[i] - yMean;
+            ySum = ySum + y[i] - yMean;
         }
         ySum = Math.pow(ySum,2);
         denominator = xSum*ySum;

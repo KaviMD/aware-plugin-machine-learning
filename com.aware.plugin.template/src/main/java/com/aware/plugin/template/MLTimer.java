@@ -203,14 +203,13 @@ public class MLTimer extends Activity {
 
                         String prediction = RandomForestClassifier.predict(features);
                         Log.i("Detected Activity",prediction);
-                        /*
                         Intent sendIntent = new Intent();
                         sendIntent.setAction(Intent.ACTION_SEND);
                         sendIntent.putExtra(Intent.EXTRA_TEXT, "This is my text to send.");
                         sendIntent.setType("text/plain");
-                        startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.detection)));
+                        //context.startActivity(Intent.createChooser(sendIntent, context.getResources().getText(R.string.detection)));
                         //context.sendBroadcast(new Intent("ACCELEROMETER_DATA").putExtra("data", prediction));
-
+                        /*
                         TextView hello = null;
                         View card = LayoutInflater.from(context).inflate(R.layout.card, null);
                         hello = (TextView) card.findViewById(R.id.hello);

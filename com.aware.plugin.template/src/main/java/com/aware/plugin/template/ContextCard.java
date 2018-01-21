@@ -70,7 +70,6 @@ public class ContextCard implements IContextCard {
                 ContentValues data = intent.getParcelableExtra("data");
                 //hello.setText(data.toString());
                 //hello.setText(CurrentActivity.toString());
-                String str = "Detection: " + detection.toString();
                 hello.setText("Detection: ");
             }
         }
