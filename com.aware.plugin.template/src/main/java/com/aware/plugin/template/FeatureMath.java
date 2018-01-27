@@ -1,9 +1,11 @@
 package com.aware.plugin.template;
-import org.jtransforms.fft.DoubleFFT_1D;
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.transform.DftNormalization;
+import org.apache.commons.math3.transform.FastFourierTransformer;
+import org.apache.commons.math3.transform.TransformType;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import java.lang.Math;
-import java.util.Arrays;
 
 public class FeatureMath {
     public static double Sum(double[] doubles) {
@@ -24,29 +26,27 @@ public class FeatureMath {
     }
 
     public static double Energy(double[] data, int winSize) {
-        double[] data2 = new double[data.length*2];
-        for(int i=0;i<data2.length;i++){
-            if(i<data.length){
-                data2[i] = data[i];
-            }
-            else{
-                data2[i] = 0;
-            }
-        }
         double sum = 0.0;
-        DoubleFFT_1D fftCl = new DoubleFFT_1D(data.length);
-        fftCl.realForwardFull(data2);
-        System.out.println(Arrays.toString(data2));
-        for (int i=0; i<data2.length;i++){
-            if(i%2 == 0){
-                sum = sum + Math.pow(data2[i],2);
-            } else {
-                sum = sum - Math.pow(data2[i],2);
+        double[] dataFixed;
+        if((data.length & (data.length- 1)) != 0) {
+            dataFixed = new double[data.length+1];
+            for(int i=0;i<data.length;i++) {
+                dataFixed[i] = data[i];
             }
-            System.out.println(sum);
+        } else {
+            dataFixed = data;
         }
-        return sum/winSize; // winSize should be 63
+        FastFourierTransformer FFT = new FastFourierTransformer(DftNormalization.STANDARD);
+        Complex[] result = FFT.transform(dataFixed, TransformType.FORWARD);
+        for (int i=0; i<result.length;i++){
+            double real = result[i].getReal();
+            double imaginary = result[i].getImaginary();
+            sum = sum + Math.pow(real,2);
+            sum = sum - Math.pow(imaginary,2);
+        }
+        return sum/winSize; // 63
     }
+
     public static double Correlation(double[] x,double[] y){
         PearsonsCorrelation PC = new PearsonsCorrelation();
         return ((PC.correlation(x,y)*2)+(2))/4;
