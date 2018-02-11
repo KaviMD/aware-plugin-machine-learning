@@ -77,7 +77,7 @@ public class MLTimer {
                         broadcastFilter.addAction(Accelerometer.ACTION_AWARE_ACCELEROMETER);
                         broadcastFilter.addAction(Gyroscope.ACTION_AWARE_GYROSCOPE);
                         context.registerReceiver(myReciver, broadcastFilter);
-                        sendMessage("Test");
+                        sendMessage("Prediction:");
                     }
                 });
             }
