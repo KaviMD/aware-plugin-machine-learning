@@ -10,10 +10,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.IntentFilter;
 
+import java.util.Arrays;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
 
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.content.Intent;
@@ -23,8 +27,11 @@ import com.aware.Gyroscope;
 import com.aware.providers.Accelerometer_Provider;
 import com.aware.providers.Gyroscope_Provider;
 
+import static java.lang.Integer.valueOf;
+
 
 public class MLTimer {
+    public static Semaphore available = new Semaphore(1,true);
     public static final String EXTRA_MESSAGE = "com.aware.machine-learning.MESSAGE";
     //View view;
     public static int CurrentActivity;
@@ -32,6 +39,7 @@ public class MLTimer {
     TimerTask timerTask;
     public static Plugin plugin;
     Context context;
+    Twenty rule = new Twenty();
 
     //we are going to use a handler to be able to run in our TimerTask
     final Handler handler = new Handler();
@@ -48,11 +56,12 @@ public class MLTimer {
         //set a new Timer
         timer = new Timer();
         context = ctxt;
+        rule.setContext(context);
         //initialize the TimerTask's job
         initializeTimerTask();
 
-        //schedule the timer, after the first 0ms the TimerTask will run every 4200ms
-        timer.schedule(timerTask, 0, 10000);
+        //schedule the timer, after the first 0ms the TimerTask will run every 5000ms
+        timer.schedule(timerTask, 0, 5000);
     }
 
     public void stoptimertask(View v) {
@@ -158,10 +167,11 @@ public class MLTimer {
 
         features[32] = FeatureMath.Correlation(data[1], data[2]);
 
-        String prediction = RandomForestClassifier.predict(features);
+        int prediction = RandomForestClassifier.predict(features);
+        String predictionStr = RandomForestClassifier.getString(prediction);
         Log.i("MLTimer", "Detected Activity: "+prediction);
-        sendMessage(prediction);
-
+        sendMessage(predictionStr);
+        rule.updateDetections(prediction);
         Log.i("MLTimer","Plugin: Complete");
 
     }
@@ -171,28 +181,36 @@ public class MLTimer {
         public int gyroIndex = 0;
         public ContentValues[] accValues = new ContentValues[63];
         public ContentValues[] gyroValues = new ContentValues[63];
-        public long accTimestamp = -1;
-        public long gyroTimestamp = -1;
+        private long accTimestamp = -1;
+        private long gyroTimestamp = -1;
 
         @Override
         public void onReceive(Context context, Intent intent) {
             ContentValues rowData = (ContentValues) intent.getExtras().get("data");
             if(intent.getAction().equals(Accelerometer.ACTION_AWARE_ACCELEROMETER) && accIndex < 63) {
-                long currentAccTimestamp = rowData.getAsLong(Accelerometer_Provider.Accelerometer_Data.TIMESTAMP);
-                if(accTimestamp == -1 || accTimestamp != currentAccTimestamp) {
-                    accValues[accIndex] = rowData;
-                    Log.i("MLTimer", "Acc: " + rowData.toString());
-                    accIndex++;
-                    accTimestamp = currentAccTimestamp;
-                }
+                try {
+                    available.acquire();
+                    long currentAccTimestamp = rowData.getAsLong(Accelerometer_Provider.Accelerometer_Data.TIMESTAMP);
+                    if (accTimestamp == -1 || accTimestamp != currentAccTimestamp) {
+                        accTimestamp = currentAccTimestamp;
+                        accValues[accIndex] = rowData;
+                        Log.i("MLTimer", "Acc: " + rowData.toString());
+                        accIndex++;
+                    }
+                } catch (Exception e) {}
+                available.release();
             } else if(intent.getAction().equals(Gyroscope.ACTION_AWARE_GYROSCOPE) && gyroIndex < 63){
-                long currentGyroTimestamp = rowData.getAsLong(Gyroscope_Provider.Gyroscope_Data.TIMESTAMP);
-                if(gyroTimestamp == -1 || gyroTimestamp != currentGyroTimestamp) {
-                    gyroValues[gyroIndex] = rowData;
-                    Log.i("MLTimer", "Gyro: " + rowData.toString());
-                    gyroIndex++;
-                    gyroTimestamp = currentGyroTimestamp;
-                }
+                try {
+                    available.acquire();
+                    long currentGyroTimestamp = rowData.getAsLong(Gyroscope_Provider.Gyroscope_Data.TIMESTAMP);
+                    if (gyroTimestamp == -1 || gyroTimestamp != currentGyroTimestamp) {
+                        gyroTimestamp = currentGyroTimestamp;
+                        gyroValues[gyroIndex] = rowData;
+                        Log.i("MLTimer", "Gyro: " + rowData.toString());
+                        gyroIndex++;
+                    }
+                } catch (Exception e) {}
+                available.release();
             }
             if(accIndex >= 63 && gyroIndex >=  63) {
                 makePrediction(this);

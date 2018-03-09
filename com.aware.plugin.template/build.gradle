@@ -56,5 +56,6 @@ dependencies {
     implementation files('libs/commons-math3-3.6.1.jar')
     //implementation files('libs/JTransforms-3.1-with-dependencies.jar')
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation "com.android.support:support-compat:$support_libs"
 }
 //apply plugin: 'com.google.gms.google-services'

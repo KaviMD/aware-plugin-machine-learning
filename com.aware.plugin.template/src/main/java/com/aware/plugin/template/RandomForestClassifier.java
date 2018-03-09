@@ -15738,7 +15738,7 @@ public class RandomForestClassifier {
         return class_idx;
     }
 
-    public static String predict(double[] features) {
+    public static int predict(double[] features) {
         int n_classes = 4;
         int[] classes = new int[n_classes];
         classes[RandomForestClassifier.predict_0(features)]++;
@@ -15850,10 +15850,14 @@ public class RandomForestClassifier {
                 class_val = classes[i];
             }
         }
+
         // Add 2 to class_idx to get accurate class prediction
+        return class_idx;
+    }
+
+    public static String getString(int OC) {
         String[] Classes = {"Sitting","Standing","Walking","Running"};
-        return Classes[class_idx];
-        //return class_idx+2;
+        return Classes[OC];
     }
 
     public static int main(String[] args) {
@@ -15867,7 +15871,7 @@ public class RandomForestClassifier {
 
             // Prediction:
             //int prediction = RandomForestClassifier.predict(features);
-            String prediction = RandomForestClassifier.predict(features);
+            String prediction = String.valueOf(RandomForestClassifier.predict(features));
             //System.out.println(prediction);
             Log.i("Prediction",String.valueOf(prediction));
             //return prediction;
