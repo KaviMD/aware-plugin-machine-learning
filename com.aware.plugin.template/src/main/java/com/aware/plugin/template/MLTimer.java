@@ -10,14 +10,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.IntentFilter;
 
-import java.util.Arrays;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 
 import android.os.Handler;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.content.Intent;
@@ -26,8 +23,6 @@ import com.aware.Accelerometer;
 import com.aware.Gyroscope;
 import com.aware.providers.Accelerometer_Provider;
 import com.aware.providers.Gyroscope_Provider;
-
-import static java.lang.Integer.valueOf;
 
 
 public class MLTimer {

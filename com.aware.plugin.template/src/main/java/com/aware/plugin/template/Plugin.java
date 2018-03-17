@@ -114,6 +114,12 @@ public class Plugin extends Aware_Plugin {
             RandomForestClassifier RFC = new RandomForestClassifier();
             Log.i("Prediction",String.valueOf(RFC.predict(data)));
             */
+
+            String msg = "Hi";
+            Intent noti = new Intent(this, Notification.class);
+            noti.putExtra("message", msg);
+            startService(noti);
+            
             MLTimer timer = new MLTimer();
             timer.startTimer(this);
             //Initialise AWARE instance in plugin

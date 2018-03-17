@@ -2,4 +2,5 @@
     <string name="app_name">AWARE: Plugin Template</string>
     <string name="plugin_template">Plugin: Template</string>
     <string name="detection">No Prediction</string>
+    <string name="title_activity_create_notification">CreateNotificationActivity</string>
 </resources>
