@@ -43,10 +43,9 @@
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/sync_template" />
         </service>
-
         <service
-            android:name=".Notification"
-            android:exported="false"></service>
+            android:name=".Twenty"
+            android:exported="false" />
     </application>
 
 </manifest>

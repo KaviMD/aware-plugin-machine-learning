@@ -34,7 +34,7 @@ public class MLTimer {
     TimerTask timerTask;
     public static Plugin plugin;
     Context context;
-    Twenty rule = new Twenty();
+    //Twenty rule = new Twenty();
 
     //we are going to use a handler to be able to run in our TimerTask
     final Handler handler = new Handler();
@@ -51,7 +51,7 @@ public class MLTimer {
         //set a new Timer
         timer = new Timer();
         context = ctxt;
-        rule.setContext(context);
+        //rule.setContext(context);
         //initialize the TimerTask's job
         initializeTimerTask();
 
@@ -166,7 +166,19 @@ public class MLTimer {
         String predictionStr = RandomForestClassifier.getString(prediction);
         Log.i("MLTimer", "Detected Activity: "+prediction);
         sendMessage(predictionStr);
-        rule.updateDetections(prediction);
+        //rule.updateDetections(prediction);
+        /*
+        Intent noti = new Intent();
+        noti.setAction(Twenty.RECEIVE_PREDICTION);
+        noti.putExtra(Twenty.PREDICTION, prediction);
+        context.sendBroadcast(noti);
+        */
+
+        Intent noti = new Intent(context, Twenty.class);
+        noti.putExtra(Twenty.PREDICTION, prediction);
+        context.startService(noti);
+
+        Log.i("Plugin", "Started Twenty");
         Log.i("MLTimer","Plugin: Complete");
 
     }

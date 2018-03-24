@@ -1,13 +1,17 @@
 package com.aware.plugin.template;
 
 import android.app.Activity;
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import android.content.Intent;
@@ -18,7 +22,10 @@ import java.util.ArrayList;
  * Created by kavidey on 3/6/18.
  */
 
-public class Twenty extends AppCompatActivity {
+public class Twenty extends IntentService {
+    MyServiceReceiver myServiceReceiver = new MyServiceReceiver();
+    final static String RECEIVE_PREDICTION = "RECEIVE_PREDICTION";
+    final static String PREDICTION = "PREDICTION";
     // Context to store context from Plugin.java
     Context context;
 
@@ -52,10 +59,57 @@ public class Twenty extends AppCompatActivity {
     // Integer to store when the next prediction should be made
     private int notificationTime = 0;
 
+
+    public Twenty() {
+        super("Twenty");
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_mltimer);
+    public void onDestroy() {
+        super.onDestroy();
+
+        unregisterReceiver(myServiceReceiver);
+        Log.i("Twenty", "Unregistered Receiver");
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(RECEIVE_PREDICTION);
+        registerReceiver(myServiceReceiver, filter);
+        Log.i("Twenty", "Registered Receiver");
+    }
+
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        Log.i("Twenty", "Started");
+        // Normally we would do some work here, like download a file.
+        // For our sample, we just sleep for 5 seconds.
+        try {
+            Integer detection = intent.getIntExtra(PREDICTION, 0);
+            String[] Classes = {"Sitting","Standing","Walking","Running"};
+            String activity = Classes[detection];
+            updateDetections(detection);
+            //Thread.sleep(5000);
+            NotificationCompat.Builder builder =
+                    new NotificationCompat.Builder(this)
+                            .setSmallIcon(R.drawable.ic_launcher)
+                            .setContentTitle("Twenty")
+                            .setContentText(activity);
+            int NOTIFICATION_ID = 12345;
+
+            Intent targetIntent = new Intent(this, Plugin.class);
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, targetIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.setContentIntent(contentIntent);
+            NotificationManager nManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            nManager.notify(NOTIFICATION_ID, builder.build());
+            Log.i("Twenty", "Test Notification Sent");
+        } catch (Exception e) {
+            // Restore interrupt status.
+            Thread.currentThread().interrupt();
+        }
     }
 
     // Method called from instance that updates the detections and makes notifications if necessary
@@ -66,6 +120,7 @@ public class Twenty extends AppCompatActivity {
             detections.add(detection);
             updateVars(detection);
             checkNotifications();
+            //notifyAction("Test");
             //createNotification("Test", "Test");
             //Toast.makeText(context, detection, Toast.LENGTH_LONG).show();
         } // if the array is full
@@ -193,12 +248,22 @@ public class Twenty extends AppCompatActivity {
                 message = ("GO AND FIND A DIFFERENT ACTIVITY TO DO INSTEAD OF BEING A LITERAL LUMP");                                      //message = ("GO AND F***ING DO SOMETHING ELSE. HOW STUPID ARE YOU.");
                 break;
         }
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-        Intent noti = new Intent(this, Notification.class);
-        noti.putExtra("message", message);
-        startService(noti);
-        //sendNotification(findViewById(android.R.id.content), "20/20/20 Reminder", message);
-        //CNA.createNotification(findViewById(android.R.id.content), "20/20/20 Reminder", message);
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        notifyAction(message);
+    }
+
+    public void notifyAction(String message) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentTitle("Follow the 20/20/20 Rule")
+                .setContentText(message);
+        int NOTIFICATION_ID = 12345;
+
+        Intent targetIntent = new Intent(this, Plugin.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, targetIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(contentIntent);
+        NotificationManager nManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        nManager.notify(NOTIFICATION_ID, builder.build());
     }
 
     private void removeFirst() {
@@ -253,23 +318,17 @@ public class Twenty extends AppCompatActivity {
         context = cnxt;
     }
 
-    public void createNotification(String title, String message) {
-        // Prepare intent which is triggered if the
-        // notification is selected
-        //Intent intent = new Intent(this, NotificationReceiverActivity.class);
-        //PendingIntent pIntent = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intent, 0);
-
-        // Build notification
-        // Actions are just fake
-        Notification noti = new Notification.Builder(this)
-                .setContentTitle(title)
-                .setContentText(message)
-                .build();
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        // hide the notification after its selected
-        noti.flags |= Notification.FLAG_AUTO_CANCEL;
-
-        notificationManager.notify(0, noti);
-
+    public class MyServiceReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if(action.equals(RECEIVE_PREDICTION)){
+                String msg = intent.getStringExtra(PREDICTION);
+                Integer pred = intent.getIntExtra(PREDICTION,1);
+                updateDetections(pred);
+                Log.i("Twenty","Received Prediction");
+            }
+        }
     }
+
 }

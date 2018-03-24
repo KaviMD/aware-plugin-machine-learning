@@ -115,15 +115,33 @@ public class Plugin extends Aware_Plugin {
             Log.i("Prediction",String.valueOf(RFC.predict(data)));
             */
 
-            String msg = "Hi";
+            /*
+            String msg = "Testing Notifications";
             Intent noti = new Intent(this, Notification.class);
-            noti.putExtra("message", msg);
+            noti.putExtra(Notification.NOTIFICATION_MESSAGE, msg);
             startService(noti);
-            
+            */
+
+            /*
+            String msg = "Starting Twenty";
+            Intent noti = new Intent(this, Twenty.class);
+            noti.putExtra(Twenty.PREDICTION, msg);
+            startService(noti);
+            Log.i("Plugin", "Started Twenty");
+            */
+
+            /*
+            Intent test = new Intent();
+            test.setAction(Notification.SEND_NOTIFICATION);
+            test.putExtra(Notification.NOTIFICATION_MESSAGE, "Test String");
+            sendBroadcast(test);
+            */
+
             MLTimer timer = new MLTimer();
             timer.startTimer(this);
             //Initialise AWARE instance in plugin
             Aware.startAWARE(this);
+            Log.w("Plugin","Started Timer");
         }
 
         return START_STICKY;

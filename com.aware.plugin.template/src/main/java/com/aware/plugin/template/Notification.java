@@ -3,6 +3,7 @@ package com.aware.plugin.template;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.Context;
 import android.support.v4.app.NotificationCompat;
@@ -15,6 +16,8 @@ import android.support.v4.app.NotificationCompat;
  * helper methods.
  */
 public class Notification extends IntentService {
+    final static String SEND_NOTIFICATION = "SEND_NOTIFICATION";
+    final static String NOTIFICATION_MESSAGE = "NOTIFICATION_MESSAGE";
 
     /**
      * A constructor is required, and must call the super IntentService(String)
@@ -34,7 +37,7 @@ public class Notification extends IntentService {
         // Normally we would do some work here, like download a file.
         // For our sample, we just sleep for 5 seconds.
         try {
-            String message = intent.getStringExtra("message");
+            String message = intent.getStringExtra(NOTIFICATION_MESSAGE);
             //Thread.sleep(5000);
             NotificationCompat.Builder builder =
                     new NotificationCompat.Builder(this)
@@ -53,86 +56,32 @@ public class Notification extends IntentService {
             Thread.currentThread().interrupt();
         }
     }
-    /*
-    // TODO: Rename actions, choose action names that describe tasks that this
-    // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
-    private static final String ACTION_FOO = "com.aware.plugin.template.action.FOO";
-    private static final String ACTION_BAZ = "com.aware.plugin.template.action.BAZ";
 
-    // TODO: Rename parameters
-    private static final String EXTRA_PARAM1 = "com.aware.plugin.template.extra.PARAM1";
-    private static final String EXTRA_PARAM2 = "com.aware.plugin.template.extra.PARAM2";
+    public void notifyAction(String message) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentTitle("Follow the 20/20/20 Rule")
+                .setContentText(message);
+        int NOTIFICATION_ID = 12345;
 
-    public Notification() {
-        super("Notification");
+        Intent targetIntent = new Intent(this, Plugin.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, targetIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(contentIntent);
+        NotificationManager nManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        nManager.notify(NOTIFICATION_ID, builder.build());
     }
 
-    /**
-     * Starts this service to perform action Foo with the given parameters. If
-     * the service is already performing a task this action will be queued.
-     *
-     * @see IntentService
-     */
-    /*
-    // TODO: Customize helper method
-    public static void startActionFoo(Context context, String param1, String param2) {
-        Intent intent = new Intent(context, Notification.class);
-        intent.setAction(ACTION_FOO);
-        intent.putExtra(EXTRA_PARAM1, param1);
-        intent.putExtra(EXTRA_PARAM2, param2);
-        context.startService(intent);
-    }
+    public class MyServiceReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
 
-    /**
-     * Starts this service to perform action Baz with the given parameters. If
-     * the service is already performing a task this action will be queued.
-     *
-     * @see IntentService
-     */
-    /*
-    // TODO: Customize helper method
-    public static void startActionBaz(Context context, String param1, String param2) {
-        Intent intent = new Intent(context, Notification.class);
-        intent.setAction(ACTION_BAZ);
-        intent.putExtra(EXTRA_PARAM1, param1);
-        intent.putExtra(EXTRA_PARAM2, param2);
-        context.startService(intent);
-    }
-    /*
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        if (intent != null) {
-            final String action = intent.getAction();
-            if (ACTION_FOO.equals(action)) {
-                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-                handleActionFoo(param1, param2);
-            } else if (ACTION_BAZ.equals(action)) {
-                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-                handleActionBaz(param1, param2);
+            String action = intent.getAction();
+            if(action.equals(SEND_NOTIFICATION)){
+                String msg = intent.getStringExtra(NOTIFICATION_MESSAGE);
+                notifyAction(msg);
             }
         }
     }
 
-    /**
-     * Handle action Foo in the provided background thread with the provided
-     * parameters.
-     */
-    /*
-    private void handleActionFoo(String param1, String param2) {
-        // TODO: Handle action Foo
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
 
-    /**
-     * Handle action Baz in the provided background thread with the provided
-     * parameters.
-     */
-    /*
-    private void handleActionBaz(String param1, String param2) {
-        // TODO: Handle action Baz
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-    */
 }
