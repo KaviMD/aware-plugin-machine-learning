@@ -23,7 +23,7 @@ import java.util.ArrayList;
  */
 
 public class Twenty extends IntentService {
-    MyServiceReceiver myServiceReceiver = new MyServiceReceiver();
+    //MyServiceReceiver myServiceReceiver = new MyServiceReceiver();
     final static String RECEIVE_PREDICTION = "RECEIVE_PREDICTION";
     final static String PREDICTION = "PREDICTION";
     // Context to store context from Plugin.java
@@ -68,8 +68,8 @@ public class Twenty extends IntentService {
     public void onDestroy() {
         super.onDestroy();
 
-        unregisterReceiver(myServiceReceiver);
-        Log.i("Twenty", "Unregistered Receiver");
+        //unregisterReceiver(myServiceReceiver);
+        //Log.i("Twenty", "Unregistered Receiver");
     }
 
     @Override
@@ -78,13 +78,13 @@ public class Twenty extends IntentService {
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(RECEIVE_PREDICTION);
-        registerReceiver(myServiceReceiver, filter);
-        Log.i("Twenty", "Registered Receiver");
+        //registerReceiver(myServiceReceiver, filter);
+        //Log.i("Twenty", "Registered Receiver");
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.i("Twenty", "Started");
+        //Log.i("Twenty", "Started");
         // Normally we would do some work here, like download a file.
         // For our sample, we just sleep for 5 seconds.
         try {
@@ -104,8 +104,8 @@ public class Twenty extends IntentService {
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, targetIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.setContentIntent(contentIntent);
             NotificationManager nManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            nManager.notify(NOTIFICATION_ID, builder.build());
-            Log.i("Twenty", "Test Notification Sent");
+            //nManager.notify(NOTIFICATION_ID, builder.build());
+            //Log.i("Twenty", "Test Notification Sent");
         } catch (Exception e) {
             // Restore interrupt status.
             Thread.currentThread().interrupt();
@@ -317,7 +317,7 @@ public class Twenty extends IntentService {
     public void setContext(Context cnxt) {
         context = cnxt;
     }
-
+    /*
     public class MyServiceReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -330,5 +330,6 @@ public class Twenty extends IntentService {
             }
         }
     }
+    */
 
 }

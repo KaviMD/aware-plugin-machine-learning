@@ -46,6 +46,9 @@
         <service
             android:name=".Twenty"
             android:exported="false" />
+        <service
+            android:name=".Notification"
+            android:exported="false" />
     </application>
 
 </manifest>
